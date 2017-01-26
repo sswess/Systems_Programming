@@ -1,0 +1,23 @@
+Indexer
+
+Operation:
+
+This program takes either a directory or a file as an input argument, tokenizes the content of all regular files
+within the directory, including sub-directories, and outputs the data in JSON format to the file specified as 
+an arugment.
+
+	Format: ./indexer <output file name> <input directory or file>
+
+In the case of a single file input, a message is printed to the terminal acknowledging that only the speficied
+file will be tokenized. In the case that an invalid character gets through the tokenizer, which under normal 
+funstion should not be possible, the invalid character will be printed with a message and the token will not be
+added.
+
+Only trie.c is required to make the program. 
+
+Performance:
+
+We implemented a trie node for time and space efficient storage of all token data. However, the list of files that
+contain a particular token is implemented as an unsorted linked list. Using an unsorted linked list made insertion
+simple, but required us to write a simple, but unefficient, selection sort in order to write out the files in order.
+The reason we did not writed a sorted list is because the nodes of the list would have

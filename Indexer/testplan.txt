@@ -1,0 +1,20 @@
+A file called testplan.txt that contains a test plan for your indexer. You should include the example files and/or directories that you test your indexer on but keep these from being too large, please. (We might test your program with a very large data set though so don’t skip testing your program for scalability. In your test plan, you should discuss the larger scale testing and the results, but you can skip including the data set).
+
+To initially test our program, we had two possible cases. The first case was to just give it a single file and the second case was to give the program a directory. We used the file input in order to test to make sure our output was in the correct format and to make sure our tokenizer was working properly.  We tested both big and small files in order to make sure the tokenizer worked efficiently and didn’t take up too much time. Another test case that we check was what happened if we gave the program an empty file. After that we created a sample directory in order to make sure we were able to access every single directory inside and following all the paths to reach all of the files. We checked to see what happened when we had an empty directory and an empty files. We tested to make sure we were able to handle files with the same name in different directories. 
+
+An example of a sample directory we used to test our program. I am going to use tabs to show depth in the directory and .txt to represent text files
+Testdir1
+	Text1.txt
+	Text2.txt
+	Text3.txt
+	Testdir2
+		Text1.tst
+		Testdir3
+			Testdir4
+				Testdir5
+					Testdir6
+						Text4.txt
+						Text5.txt
+
+For the text inside our files, we would use bits of code. We found this was a great way to test because even though the code would be different, there would be a lot of similar words. That helped us test count and to test when the same word was in different files.
+

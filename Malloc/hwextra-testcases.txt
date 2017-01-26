@@ -1,0 +1,66 @@
+All of our test cases are contained in main.c. We made use of the assert function in
+assert.h in order to test returns from mymalloc. If any of these assertions fail, 
+there is a problem. Our test cases print the location that was returned after
+allocating space, allowing easy comparison of memory to test our implementations.
+
+Because the free method is not meant to return any data, there is no way of knowing
+what happens inside of it. Therefore, we have added two print statements to print
+the number of blocks (allocated or free) in memory. One prints before attempting to
+free, the other after attempting.
+
+
+Test 1: Attempting to free an unallocated pointer
+
+Test 2: Attempt to malloc a spaces of invalid size
+		10000 bytes is too big
+		0 bytes cannot contain data
+		5000 is too big because each block needs space for a header
+
+Test 3: Allocate four 1000 byte blocks of memory (p1, p2, p3, p4)
+	Attempt to allocate a fifth 2000 byte block (error message)
+	Allocate a 100 byte block (p5)
+
+Test 4: Attempt to free a location in the middle of a block (error message)
+
+Test 5: Free blocks p1 - p4 in order
+	Attempt to free p4 again (error message)
+	Free block p5
+
+Test 6: Allocate four 1000 byte blocks of memory (p1, p2, p3, p4)
+	Free p1 (free from front of list)
+	Free p3 (free from middle of list)
+	Free p4 (free from end of list)
+
+Test 7: Allocate 1000 bytes (p1)
+	Free p1
+		Note that 2 blocks are allocated both before and after freeing.
+		This is because the first block was free and large enough for p1,
+		and when it was freed the block still remains.
+	Allocate 1001 bytes (p1)
+	Free p1
+		Although the first block is free, it only has space for 1000 bytes
+		while the new block needs 1001 bytes. Therefore, the block is
+		added at the end and thus creates a third block. After freeing,
+		that third block is removed, leaving 2 remaining.
+	Free p2 to clear list
+
+Test 8: Allocate four 1000 byte blocks of memory (p1, p2, p3, p4)
+	Free p1 (first block)
+	Free p3 (third block)
+	Free p2 (second block)
+		Note that before freeing p2, 4 blocks remain in memory. Afterward,
+		only 2 remain. This is due to the first three free blocks being
+		collapsed into one larger free block of 3000 bytes
+	Allocate 3000 bytes (p1)
+		If freeing p2 works correctly, then the assertion should not fail
+		because the first block is free and has 3000 blocks of space.
+		Otherwise, the assertion will fail because malloc cannot find
+		enough space. There will only be two blocks after allocation.
+	Free p1
+	Allocate 2000 bytes (p1)
+		Again, this block should be allocated into the first block.
+		However, this will create a second block because the free block
+		is larger than the block being allocated. Thus, there will be
+		three blocks after this allocation.
+	Free p1
+	Free p4
