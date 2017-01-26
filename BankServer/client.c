@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
 	
 	// try to connect to the server using our blank socket and the address info struct 
 	//   if it doesn't work, complain and exit
+	
     while (connect(sockfd,(struct sockaddr *)&serverAddressInfo,sizeof(serverAddressInfo)) < 0) 
 	{
         char full[100];
@@ -98,13 +99,14 @@ int main(int argc, char *argv[])
 	int pid = fork();
 	
 	if(pid == 0){ //Client reads input from client user
+		
 		int exit_flag = 0;
 		while(!exit_flag){
 			bzero(message, sizeof(message));
 			printf(">");
 			fflush(stdout);
 			fgets(message, sizeof(message), stdin);
-			printf("here     %d", exit_flag);
+			//printf("here     %d", exit_flag);
 			int i;
 			for(i = 0; message[i] != '\0'; i++)
 				message[i] = tolower(message[i]);

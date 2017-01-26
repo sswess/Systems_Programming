@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdio.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <sys/mman.h>
@@ -10,6 +9,12 @@
 #include <string.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/ipc.h>
+#include <netdb.h> 
+
+
+
+
 
 #include "shmem.h"
 
@@ -106,7 +111,7 @@ void process_input(char * input, SharedMem* shmem, char* output){
 			sprintf(output, "You are not currently in a session. Cannot credit an account.");
 		}
 		else if((amt = atof(argument)) < 0){
-			sprintf(output, "Invalid debit amount of %d specified.", amt);
+			sprintf(output, "Invalid debit amount of %f specified.", amt);
 		}
 		else if(ba[currentaccount].flag == 1){
 			sprintf(output, "New balance for account \"%s\" = %f", ba[currentaccount].name,
@@ -151,28 +156,18 @@ void sigint_handler(int sig){
 	//Bind to user specified port
 	//Connect to client
 	//Processing loop to handle client requests
-void session(int portno)
+void session(int portno, int fd)
 {
+
 	printf("done.\nConnecting to shared memory... ");
-	
+	printf("%d",fd);
+	fflush(stdout);
 	//Shared mem vars
 	key_t key = SHMEM_KEY;
 	int shmid;
 	SharedMem* shmem;
 	char err_output[50];
 	
-	/*if((shmid = shm_open(SHM_NAME, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) == -1){
-		fflush(stdout);
-		sprintf(err_output,"\nERROR shm_open (%d:%s:%d)",getpid(),__FILE__,__LINE__);
-		perror(&err_output);
-        exit(1);
-	}
-	else if((shmem = (SharedMem*)mmap(NULL, sizeof(SharedMem), PROT_READ | PROT_WRITE, MAP_SHARED, shmid, 0)) == -1){
-		fflush(stdout);
-		sprintf(err_output,"\nERROR mmap (%d:%s:%d)",getpid(),__FILE__,__LINE__);
-		perror(&err_output);
-        exit(1);
-	}*/
 	if ((shmid = shmget(SHMEM_KEY, (size_t)sizeof(SharedMem), 0666)) < 0) {
 		fflush(stdout);
 		sprintf(err_output,"\nERROR shmget (%d:%s:%d)",getpid(),__FILE__,__LINE__);
@@ -186,96 +181,33 @@ void session(int portno)
         exit(1);
     }
 	
-	printf("%s\n",shmem->accounts[1].name);
-	
-	printf("done.\nInitializing socket... ");
-	
-    //int sockfd, newsockfd, portno, clilen;
-    //struct sockaddr_in serv_addr;
-	//struct sockaddr_in cli_addr;
-	
-	int sockfd = -1;	// file descriptor for our server socket
-	int fd = -1;	// file descriptor for a client socket
-	//int portno = -1;	// server port to connect to
-	socklen_t clilen = -1;	// utility variable - size of clientAddressInfo below
-	int n = -1;			// utility variable - for monitoring reading/writing from/to the socket
-	char buffer[256];	// char array to store data going to and coming from the socket
-
-	struct sockaddr_in serverAddressInfo;	
-	struct sockaddr_in clientAddressInfo;
-	 
-/** If the user gave enough arguments, try to use them to get a port number and address **/
-	 
-	// try to build a socket .. if it doesn't work, complain and exit
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0)
-	{
-       fflush(stdout);
-	   perror("ERROR opening socket");
-	}
-	
-/** We now have the port to build our server socket on .. time to set up the address struct **/
-
-	// zero out the socket address info struct .. always initialize!
-	bzero((char *) &serverAddressInfo, sizeof(serverAddressInfo));
-
-	// set the remote port .. translate from a 'normal' int to a super-special 'network-port-int'
-	serverAddressInfo.sin_port = htons(portno);
-	 
-	// set a flag to indicate the type of network address we'll be using  
-    serverAddressInfo.sin_family = AF_INET;
-	
-	// set a flag to indicate the type of network address we'll be willing to accept connections from
-    serverAddressInfo.sin_addr.s_addr = INADDR_ANY;
-    
-/** We have an address struct and a socket .. time to build up the server socket **/
-    
-	printf("done.\nBinding to port %d... ", portno);
-	
-    // bind the server socket to a specific local port, so the client has a target to connect to      
-    if (bind(sockfd, (struct sockaddr *) &serverAddressInfo, sizeof(serverAddressInfo)) < 0)
-	{
+		printf("done.\nConnected to client!!!!!!!!.\n");
 		fflush(stdout);
-		close(sockfd);
-		perror("\nERROR on binding");
-		exit(0);
-	}
 	
-	printf("done.\nWaiting for client... ");
-	fflush(stdout); //Needed bcause listen() is a blocking function
-	
-	clilen = sizeof(clientAddressInfo);
-	
-	if (listen( sockfd, 100 ) == -1 ){
-		printf( "\nERROR, listen() failed (%s : %d)\n", __FILE__, __LINE__ );
-		fflush(stdout);
-		close( sockfd );
-		exit(0);
-	}
-	else if((fd = accept(sockfd, (struct sockaddr *)&clientAddressInfo, &clilen )) != -1 ){
-		printf("done.\nConnected to client.\n");
-		
-		//Set signal handler
 		signal(SIGINT, &sigint_handler);
 		printf("Ctrl-c to quit.\n");
-
+	
 		//Set socket to non-blocking file descriptor
 		//int flags = fcntl(fd, F_GETFL, 0);
 		//fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-
+		
 		char	request[2048];
 		char 	response[2048];
 		char	message[256];
 		char	output[256];
 		exit_flag = 0;
 		while(!exit_flag){
+				
 			printf(">");
 			bzero(request, sizeof(request));
+	
+		
 			while(read(fd, request, sizeof(request)) < 1){sleep(1);}
-			
 			printf("\nClient> %s",request);
 			fflush(stdout);
 			bzero(output, sizeof(output));
+			//printf("here!!!\n");
+				fflush(stdout);
 			process_input(request, shmem, output);
 			printf("-> %s\n",output);
 			fflush(stdout);
@@ -287,7 +219,6 @@ void session(int portno)
 			fflush(stdout);
 		}
 		close(fd);
-	}
-	else{fflush(stdout);perror("ERROR on accept()");}
-	close(sockfd);
+	
+	
 }

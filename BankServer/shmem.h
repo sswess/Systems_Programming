@@ -15,6 +15,6 @@ typedef struct shared_memory{
 } SharedMem;
 //1 is shutdown
 //void process_input(char * input, SharedMem* shmem, char* output);
-void session(int portno);
+void session(int portno, int fd);
 //void process_input(char * input, SharedMem* shmem, char* output);
 

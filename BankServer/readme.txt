@@ -1,4 +1,4 @@
-This is an incomplete version of the bank server. It only consists of a single client session process which can handle a single client.
+This version is able to handle multiple clients. This program uses processes in the form of the fork command in order to handle the different clients on the server side and uses fork to split the read and write threads
 
 USAGE:
 
